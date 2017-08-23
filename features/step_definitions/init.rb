@@ -1,33 +1,81 @@
 When(/^I visit page "(.*?)"$/) do |url|
   visit url
-  # loop while finished_all_ajax_requests? # Wait for first request,
-  # loop until finished_all_ajax_requests? # then wait until they all finish.
-  save_and_open_screenshot
+  # save_and_open_screenshot
 end
 
-And(/^Wait until all ajax request finished$/) do
-  wait_until
-  # Timeout.timeout(Capybara.default_max_wait_time) do
-  #   loop while finished_all_ajax_requests? # Wait for first request,
-  #   loop until finished_all_ajax_requests? # then wait until they all finish.
-  # end
+Then(/^I click on button "([^"]*)"$/) do |button_name|
+  click_button button_name
+  # save_and_open_screenshot
 end
 
-Then(/^I see a text "([^"]*)"$/) do |arg1|
-  wait_until
-  save_and_open_screenshot
-  click_button '#add'
+And(/^I see a button "([^"]*)"$/) do |button|
+  expect(page).to have_css('button#add')
 end
 
+And(/^I should see an inputs: "([^"]*)"$/) do |inputs|
+  array_of_inputs = inputs.split(',')
 
-def wait_until
-  loop unless page.has_css?('riot-jobs div.container')
+  array_of_inputs.each do |input|
+    expect(page).to have_css("input##{input}")
+  end
 end
 
+And(/^I should see text area "([^"]*)"$/) do |textarea|
+  page.evaluate_script("document.getElementById('#{textarea}').style.display = 'block'")
+  expect(page).to have_css("textarea##{textarea}")
+end
 
-#
-# def finished_all_ajax_requests?
-#   request_count = page.evaluate_script("$.active").to_i
-#   request_count && request_count.zero?
-# rescue Timeout::Error
-# end
+And(/^I should see hidden inputs "([^"]*)"$/) do |inputs|
+  array_of_inputs = inputs.split(',')
+
+  array_of_inputs.each do |input|
+    page.evaluate_script("document.getElementById('#{input}').style.display = 'block'")
+    expect(page).to have_css(".switch input##{input}")
+  end
+end
+
+Then(/^See buttons "([^"]*)" and "([^"]*)"$/) do |button1, button2|
+  expect(page).to have_css("button##{button1.downcase}")
+  expect(page).to have_css("button##{button2.downcase}")
+end
+
+Then(/^I should see error for required fields "([^"]*)"$/) do |fields|
+  array_of_fields = fields.split(',')
+
+  array_of_fields.each do |field|
+    expect(page).to have_css("div#error-#{field}")
+  end
+end
+
+And(/^I fill text "([^"]*)" in "([^"]*)" field$/) do |text, field|
+  find("input##{field}").set(text)
+end
+
+Then(/^I see an error "([^"]*)"$/) do |message|
+  expect(page).to have_content message
+end
+
+Then(/^I don't see an error "([^"]*)"$/) do |message|
+  expect(page).not_to have_content message
+end
+
+And(/^Field "([^"]*)" are disabled$/) do |field|
+  find("##{field}").disabled?
+end
+
+Then(/^I see an error class "([^"]*)" in "([^"]*)" field$/) do |error_class, field|
+  find("##{field}.#{error_class}")
+end
+
+And(/^I fill text "([^"]*)" in "([^"]*)" textarea/) do |text, field_class|
+  find("div.fr-element.fr-view p").set(text)
+end
+
+Then(/^Url should be "([^"]*)"$/) do |url|
+  # save_and_open_screenshot
+  current_url.should == url
+end
+
+Then(/^I see a text "([^"]*)"$/) do |text|
+  expect(page).to have_content text
+end
