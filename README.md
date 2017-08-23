@@ -1,2 +1,1 @@
-# sudo apt-get install phantomjs
-# phantomjs ver should be 2.1.1
+# Before tests need to install Gecko driver to system to start Firefox browser
